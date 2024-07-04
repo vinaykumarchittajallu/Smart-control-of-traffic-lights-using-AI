@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Control of Traffic Lights</title>
+    <style>
+        body {
+            background-image: url('https://t4.ftcdn.net/jpg/06/07/39/85/360_F_607398536_hKJa2EOSTpsJwapuAygR6JCM6A6jh0o7.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #1B1B1B;
+            font-family: Helvetica Pro Black Oblique;
+            margin-bottom: 100px;
+            font-size: 52px;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+        .button-container button {
+            margin-bottom: 50px;
+            padding: 20px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        .button-container button.start-detection,
+        .button-container button.start-simulation {
+            background-color:#4A646C;
+        }
+        .button-container button.exit {
+            background-color: Red;
+        }
+        .inner-buttons {
+            display: none; /* Hide inner buttons by default */
+            margin-top: 20px;
+        }
+        .inner-buttons button {
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        .inner-buttons button.select-image,
+        .inner-buttons button.select-video,
+        .inner-buttons button.use-webcam {
+            background-color: #4A646C;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Control of Traffic Lights Using AI</h1>
+        <div class="button-container">
+            <form id="detection-form" action="/start_detection" method="post" enctype="multipart/form-data">
+                <input type="file" id="image_input" name="image_path" style="display: none;" onchange="handleFileSelect(event)">
+                <input type="file" id="video_input" name="video_path" style="display: none;" onchange="handleFileSelect(event)">
+                <button class="start-detection" type="button" onclick="chooseFile()">Start Detection</button>
+                <div class="inner-buttons">
+                    <form id="select-image-form" action="/select_image" method="post">
+                        <button class="select-image" type="submit">Image</button>
+                    </form>
+                    <form id="select-video-form" action="/select_video" method="post">
+                        <button class="select-video" type="submit">Video</button>
+                    </form>
+                    <form id="use-webcam-form" action="/select_webcam" method="post">
+                        <button class="use-webcam" type="submit">Webcam</button>
+                    </form>
+                </div>
+            </form>
+            <form id="simulation-form" action="/start_simulation" method="post">
+                <button class="start-simulation" type="submit">Start Simulation</button>
+                <!-- Add inner buttons here if needed -->
+            </form>
+            <form id="exit-form" action="#" method="post">
+                <button class="exit" type="button" onclick="closeWindow()">Exit</button>
+                <!-- Add inner buttons here if needed -->
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function chooseFile() {
+            document.getElementById('image_input').click();
+            document.getElementById('video_input').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const formData = new FormData();
+            formData.append('image_path', file);
+            formData.append('video_path',file);
+
+            // AJAX request to submit the form data
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/start_detection');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Handle success response if needed
+                    const imageUrl = '/path_to_detected_image'; // Change this to the URL of the detected image
+                    openImageWindow(imageUrl);
+                } else {
+                    // Handle error response if needed
+                    console.error('Error:', xhr.statusText);
+                }
+            };
+            xhr.send(formData);
+        }
+        function openImageWindow(imageUrl) {
+            // Calculate the width and height for the new window
+            const width = screen.availWidth * 0.8; // 80% of the screen width
+            const height = screen.availHeight * 0.8; // 80% of the screen height
+            
+            // Open the window without toolbar or status bar and with the calculated dimensions
+            const imageWindow = window.open(imageUrl, '_blank', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=' + width + ',height=' + height);
+            if (imageWindow) {
+                imageWindow.focus();
+            } else {
+                alert('Please allow pop-ups to view the detected image.');
+            }
+        }
+
+        function openImageWindow(imageUrl) {
+            const imageWindow = window.open(imageUrl, '_blank');
+            if (imageWindow) {
+                imageWindow.focus();
+                imageWindow.moveTo(0, 0);
+                imageWindow.resizeTo(screen.availWidth, screen.availHeight);
+            } else {
+                alert('Please allow pop-ups to view the detected image.');
+            }
+        }
+
+        function closeWindow() {
+            window.close();
+        }
+    </script>
+</body>
+</html>
